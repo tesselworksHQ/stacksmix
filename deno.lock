@@ -1,0 +1,32 @@
+{
+  "version": "5",
+  "specifiers": {
+    "npm:@nymproject/mix-fetch@3.0.1": "3.0.1",
+    "npm:fake-indexeddb@6": "6.2.7"
+  },
+  "npm": {
+    "@nymproject/mix-fetch@3.0.1": {
+      "integrity": "sha512-5RhL+Yxm3W1ZSfkI9szfOpkKMCD0r1cs3hDJumIlejDZVa4c7gE5Wk+SI4xKo/uP1sBTXZAFk/ekNBCDzzrizA==",
+      "dependencies": [
+        "@nymproject/mix-tunnel"
+      ]
+    },
+    "@nymproject/mix-tunnel@0.3.1": {
+      "integrity": "sha512-6s7CJKCnweDLy7xqOwO/Sk8oTnAnTvmDqXpdoUsaY5BWsSYs5mRoJfiYyNaDUssOMS2V/980jgG8hGFFFKs73w=="
+    },
+    "fake-indexeddb@6.2.7": {
+      "integrity": "sha512-g0ghQ+BmU3CSZaHup5FigEAAtCmtNyxkrmID7OAeK2qONHghw1aQ2l2T1RxmfhP1H1tEXVRWArUTGVCk5832ww=="
+    }
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@nymproject/mix-fetch-node-commonjs@^1.4.4",
+        "npm:@nymproject/mix-fetch@^3.0.1",
+        "npm:fake-indexeddb@^6.2.8",
+        "npm:web-worker@^1.5.0",
+        "npm:ws@^8.22.2"
+      ]
+    }
+  }
+}
