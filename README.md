@@ -45,11 +45,42 @@ Tested 2026-11-08 on Windows 11, Deno 2, mainnet: `info`, `balance`, `nonce`, `t
 - forwards only to the configured API host (the path is appended to it; you can't pick another host)
 - strips `cookie`, `user-agent`, `origin`, `referer`, `x-forwarded-for` before the request leaves
 
+## Use your own node
+
+With the default host, Hiro no longer sees your IP, but it still logs *which* addresses and txids are asked about.
+To remove that third party, run the API yourself. There are two setups.
+
+**A. Node on a server (VPS or home server), queried over the mixnet.** Nobody else logs your lookups, and the
+server only ever sees a Nym exit, so a compromised box or a nosy hosting provider still can't tie the lookups to
+the IP you browse from.
+
+1. Run a Stacks node plus the Stacks Blockchain API on the server. Hiro's
+   [stacks-blockchain-docker](https://github.com/hirosystems/stacks-blockchain-docker) runs both with Docker
+   Compose (mainnet needs a full sync and a few hundred GB of disk). The API listens on port 3999.
+2. Put it behind HTTPS on port 443 (Caddy or nginx with a certificate for e.g. `stacks.example.org`). Nym exit
+   gateways apply an exit policy, and standard HTTPS is the safe choice. Don't expose port 3999 itself.
+3. Point stacksmix at it, and deny direct access to that host as well, so the sandbox check still proves that
+   nothing leaves outside the mixnet:
+
+```sh
+STACKSMIX_API=https://stacks.example.org \
+  deno run -A --node-modules-dir=none --deny-net=stacks.example.org,api.hiro.so stacksmix.ts proxy 3999
+```
+
+**B. Node on the same machine as the wallet.** Reads are local (`http://127.0.0.1:3999`), so you don't need the
+mixnet for them. Broadcasts are a different story: a transaction your node relays first is gossiped from *your*
+node's IP. To keep the "who sent it" link off the network, read from the local node and send the signed
+transaction through stacksmix with the default host:
+
+```sh
+deno run -A --node-modules-dir=none --deny-net=api.hiro.so stacksmix.ts broadcast @signed-tx.hex
+```
+
 ## Limits
 
 - Speed: mixnet latency plus cover traffic. Fine for wallet use, slow for indexing.
-- The API provider still sees *what* you ask about (addresses, txids). It just can't tie it to your IP. For full
-  privacy, run your own node and point `STACKSMIX_API` at it over the mixnet.
+- With the default host, the API provider still sees *what* you ask about (addresses, txids). It just can't tie
+  that to your IP. See [Use your own node](#use-your-own-node) to remove the provider.
 - Deno shims (forced module Worker, in-worker `fake-indexeddb`) work around mix-fetch v3 targeting browsers.
 
 ## License
